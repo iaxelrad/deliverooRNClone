@@ -1,11 +1,7 @@
 import { View, Text } from 'react-native';
 
 const index = () => {
-  return (
-    <View>
-      <Text>index</Text>
-    </View>
-  );
+  return <View></View>;
 };
 
 export default index;
