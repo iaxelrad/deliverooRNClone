@@ -1,0 +1,108 @@
+import {
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { getDishById } from '@/assets/data/restaurant';
+import Colors from '@/constants/Colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeIn, FadeInLeft } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+
+const Dish = () => {
+  const { bottom } = useSafeAreaInsets();
+  const { id } = useLocalSearchParams();
+  const item = getDishById(+id!);
+  const router = useRouter();
+
+  const addToCart = () => {
+    // Add item to cart logic here
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    router.back();
+  };
+
+  return (
+    <View style={{ backgroundColor: '#fff', flex: 1, paddingBottom: bottom }}>
+      <View style={styles.container}>
+        <Animated.Image
+          entering={FadeIn.duration(400).delay(200)}
+          source={item?.img}
+          style={styles.image}
+        />
+        <View style={styles.details}>
+          <Animated.Text
+            entering={FadeInLeft.duration(400).delay(200)}
+            style={styles.dishName}
+          >
+            {item?.name}
+          </Animated.Text>
+          <Animated.Text
+            entering={FadeInLeft.duration(400).delay(400)}
+            style={styles.dishInfo}
+          >
+            {item?.info}
+          </Animated.Text>
+        </View>
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.fullButton} onPress={addToCart}>
+            <Text style={styles.footerText}>Add for ${item?.price}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  image: {
+    width: '100%',
+    height: 300,
+  },
+  details: {
+    padding: 20,
+  },
+  dishName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  dishInfo: {
+    fontSize: 16,
+    color: Colors.mediumDark,
+  },
+  footer: {
+    backgroundColor: '#fff',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    padding: 10,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -10 },
+    paddingTop: 20,
+  },
+  fullButton: {
+    backgroundColor: Colors.primary,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  footerText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
+
+export default Dish;
