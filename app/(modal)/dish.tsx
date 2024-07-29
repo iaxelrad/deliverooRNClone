@@ -13,15 +13,18 @@ import Colors from '@/constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInLeft } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import useBasketStore from '@/store/basketStore';
+import { Meal } from '../details';
 
 const Dish = () => {
   const { bottom } = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
-  const item = getDishById(+id!);
+  const item = getDishById(+id!)!;
   const router = useRouter();
+  const { addProduct } = useBasketStore();
 
   const addToCart = () => {
-    // Add item to cart logic here
+    addProduct(item);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     router.back();
   };
