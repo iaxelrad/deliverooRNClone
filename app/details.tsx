@@ -1,15 +1,38 @@
 // Converted from https://github.com/i6mi6/react-native-parallax-scroll-view to TS compatible version. //
 
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  ImageSourcePropType,
+  ListRenderItem,
+  SectionList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import Colors from '@/constants/Colors';
 import { restaurant } from '@/assets/data/restaurant';
-import { useNavigation } from 'expo-router';
+import { Link, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-const details = () => {
+interface Meal {
+  id: number;
+  name: string;
+  price: number;
+  info: string;
+  img: ImageSourcePropType;
+}
+
+const Details = () => {
   const navigation = useNavigation();
+
+  const DATA = restaurant.food.map((item, index) => ({
+    title: item.category,
+    data: item.meals,
+    index,
+  }));
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -34,6 +57,19 @@ const details = () => {
     });
   }, []);
 
+  const renderItem: ListRenderItem<Meal> = ({ item, index }) => (
+    <Link href={'/'} asChild>
+      <TouchableOpacity style={styles.item}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.dish}>{item.name}</Text>
+          <Text style={styles.dishText}>{item.info}</Text>
+          <Text style={styles.dishText}>{item.price}</Text>
+        </View>
+        <Image style={styles.dishImage} source={item.img} />
+      </TouchableOpacity>
+    </Link>
+  );
+
   return (
     <>
       <ParallaxScrollView
@@ -55,7 +91,37 @@ const details = () => {
         )}
       >
         <View style={styles.detailsContainer}>
-          <Text>Details</Text>
+          <Text style={styles.restaurantName}>{restaurant.name}</Text>
+          <Text style={styles.restaurantDescription}>
+            {restaurant.delivery}﹒
+            {restaurant.tags.map(
+              (tag, index) =>
+                `${tag}${index < restaurant.tags.length - 1 ? '﹒' : ''}`
+            )}
+          </Text>
+          <Text style={styles.restaurantDescription}>{restaurant.about}</Text>
+          <SectionList
+            contentContainerStyle={{ paddingBottom: 50 }}
+            keyExtractor={(item, index) => `${item.id + index}`}
+            scrollEnabled={false}
+            sections={DATA}
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: Colors.grey,
+                  marginHorizontal: 16,
+                }}
+              />
+            )}
+            SectionSeparatorComponent={() => (
+              <View style={{ height: 1, backgroundColor: Colors.grey }} />
+            )}
+            renderSectionHeader={({ section: { title, index } }) => (
+              <Text style={styles.sectionHeader}>{title}</Text>
+            )}
+          />
         </View>
       </ParallaxScrollView>
     </>
@@ -91,6 +157,41 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
+  restaurantName: {
+    fontSize: 30,
+    margin: 16,
+  },
+  restaurantDescription: {
+    fontSize: 16,
+    margin: 16,
+    lineHeight: 22,
+    color: Colors.medium,
+  },
+  sectionHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 40,
+    margin: 16,
+  },
+  item: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  dishImage: {
+    height: 80,
+    width: 80,
+    borderRadius: 4,
+  },
+  dish: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  dishText: {
+    fontSize: 14,
+    color: Colors.mediumDark,
+    paddingVertical: 4,
+  },
 });
 
-export default details;
+export default Details;
